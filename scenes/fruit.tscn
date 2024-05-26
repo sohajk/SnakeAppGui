@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://bac3rfpoy5u2d"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s1gy0"]
+bg_color = Color(0.678431, 0.6, 0.203922, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="Fruit" type="Panel"]
+offset_right = 20.0
+offset_bottom = 20.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_s1gy0")

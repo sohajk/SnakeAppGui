@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://dyigmbque031v"]
+[gd_scene load_steps=6 format=3 uid="uid://dyigmbque031v"]
 
 [ext_resource type="Script" path="res://scenes/main.cs" id="1_t5tsh"]
 [ext_resource type="PackedScene" uid="uid://dnjxghgjarvnb" path="res://scenes/snake_head.tscn" id="2_qqqkd"]
+[ext_resource type="PackedScene" uid="uid://bac3rfpoy5u2d" path="res://scenes/fruit.tscn" id="3_fk7mt"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u5xnv"]
 bg_color = Color(0.105882, 0.321569, 0.54902, 1)
@@ -50,3 +51,5 @@ offset_left = 5.0
 offset_top = 55.0
 offset_right = 25.0
 offset_bottom = 75.0
+
+[node name="Fruit" parent="." instance=ExtResource("3_fk7mt")]

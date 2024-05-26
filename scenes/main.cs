@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using Godot.Collections;
 
@@ -9,6 +10,8 @@ public partial class main : Node2D
 
 	private Panel _snakeHead;
 	private Array<Panel> _snakeBodyParts;
+	private Panel _fruit;
+	private Panel _scoreBoard;
 	private Panel _playground;
 	private Vector2 _nextPosition;
 	private PackedScene _snakeBodyPartScene;
@@ -18,6 +21,7 @@ public partial class main : Node2D
 	public override void _Ready()
 	{
 		InitElements();
+		InitElementsPositions();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -47,16 +51,45 @@ public partial class main : Node2D
 
 			_timeLastMove = 0;
 		}
+
+		GetRandomFruitPosition();
 	}
 
 	private void InitElements()
 	{
 		_snakeHead = GetNode<Panel>("./SnakeHead");
+		_fruit = GetNode<Panel>("./Fruit");
+		_scoreBoard = GetNode<Panel>("./ScoreBoard");
 		_playground = GetNode<Panel>("./Playground");
 		_snakeBodyPartScene = (PackedScene)ResourceLoader.Load("res://scenes/snake_body_part.tscn");
 
 		_snakeBodyParts = new Array<Panel>();
-		_snakeHead.Position = new Vector2(205, 205);
+	}
+
+	private void InitElementsPositions()
+	{
 		_nextPosition = Vector2.Right * _snakeHead.Size.X;
+		_snakeHead.Position = new Vector2(205, 255);
+		
+		var (x, y) = GetRandomFruitPosition();
+		_fruit.Position = new Vector2(x, y);
+	}
+
+	private (int x, int y) GetRandomFruitPosition()
+	{
+		var maxX = _playground.Size.X - 10 - _snakeHead.Size.X;
+		var maxY = _playground.Size.Y - 10 - _snakeHead.Size.Y;
+
+		var random = new Random();
+		var stepsX = maxX / _snakeHead.Size.X;
+		var stepsY = maxY / _snakeHead.Size.Y;
+
+		var randomStepX = random.Next((int)stepsX + 1);
+		var randomStepY = random.Next((int)stepsY + 1);
+
+		int randomX = (randomStepX * (int)_snakeHead.Size.X) + 5;
+		int randomY = (randomStepY * (int)_snakeHead.Size.Y) + (int)_scoreBoard.Size.Y + 5;
+
+		return (randomX, randomY);
 	}
 }
