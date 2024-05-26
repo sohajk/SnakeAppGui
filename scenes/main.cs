@@ -15,6 +15,7 @@ public partial class main : Node2D
 	private Panel _playground;
 	private Vector2 _nextPosition;
 	private PackedScene _snakeBodyPartScene;
+	private bool _gameOver;
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -45,14 +46,19 @@ public partial class main : Node2D
 		}
 
 		_timeLastMove += delta * SPEED;
-		if (_timeLastMove >= TIME_BETWEEN_MOVES)
+		if (!_gameOver && _timeLastMove >= TIME_BETWEEN_MOVES)
 		{
 			_snakeHead.Position += _nextPosition;
 
 			_timeLastMove = 0;
 		}
 
-		GetRandomFruitPosition();
+		var snakeCollision = CheckSnakeCollision();
+
+		if (snakeCollision) {
+
+			_gameOver = true;
+		}
 	}
 
 	private void InitElements()
@@ -70,9 +76,23 @@ public partial class main : Node2D
 	{
 		_nextPosition = Vector2.Right * _snakeHead.Size.X;
 		_snakeHead.Position = new Vector2(205, 255);
-		
+
 		var (x, y) = GetRandomFruitPosition();
 		_fruit.Position = new Vector2(x, y);
+	}
+
+	private bool CheckSnakeCollision()
+	{
+		var boardOffset = _scoreBoard.Size.Y;
+
+		// Check collision with border
+		if (_snakeHead.Position.X <= 5 || _snakeHead.Position.X >= _playground.Size.X - 5 - _snakeHead.Size.X
+			|| _snakeHead.Position.Y == boardOffset + 5 || _snakeHead.Position.Y == _scoreBoard.Size.Y + _playground.Size.Y - 5 - _snakeHead.Size.Y)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	private (int x, int y) GetRandomFruitPosition()
