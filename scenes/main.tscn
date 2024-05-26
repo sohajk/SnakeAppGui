@@ -47,6 +47,7 @@ offset_bottom = 460.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_v7fmd")
 
 [node name="SnakeHead" parent="." instance=ExtResource("2_qqqkd")]
+top_level = true
 offset_left = 5.0
 offset_top = 55.0
 offset_right = 25.0

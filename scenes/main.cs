@@ -1,21 +1,26 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using Godot.Collections;
 
 public partial class main : Node2D
 {
-	private readonly double SPEED = 3000.0;
+	private readonly double SPEED = 2000.0;
 	private readonly double TIME_BETWEEN_MOVES = 1000.0;
-	private double _timeLastMove = 1000.0;
+	private double _timeLastMove = 0.0;
 
 	private Panel _snakeHead;
 	private Array<Panel> _snakeBodyParts;
 	private Panel _fruit;
 	private Panel _scoreBoard;
+	private Label _scoreText;
 	private Panel _playground;
 	private Vector2 _nextPosition;
 	private PackedScene _snakeBodyPartScene;
 	private bool _gameOver;
+	private int _score;
+	private List<ulong> _snakeBodyPartsIds;
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -46,18 +51,26 @@ public partial class main : Node2D
 		}
 
 		_timeLastMove += delta * SPEED;
+
 		if (!_gameOver && _timeLastMove >= TIME_BETWEEN_MOVES)
 		{
-			_snakeHead.Position += _nextPosition;
 
 			_timeLastMove = 0;
-		}
 
-		var snakeCollision = CheckSnakeCollision();
+			var snakeCollision = CheckSnakeCollision();
+			var snakeAte = CheckSnakeEatFruit();
 
-		if (snakeCollision) {
+			SnakeBodyPartMove(snakeAte);
 
-			_gameOver = true;
+			if (snakeCollision)
+			{
+				_gameOver = true;
+			}
+			else
+			{
+				_snakeHead.Position += _nextPosition;
+			}
+
 		}
 	}
 
@@ -66,10 +79,12 @@ public partial class main : Node2D
 		_snakeHead = GetNode<Panel>("./SnakeHead");
 		_fruit = GetNode<Panel>("./Fruit");
 		_scoreBoard = GetNode<Panel>("./ScoreBoard");
+		_scoreText = _scoreBoard.GetNode<Label>("./HBoxContainer/VBoxContainer/ScoreText");
 		_playground = GetNode<Panel>("./Playground");
 		_snakeBodyPartScene = (PackedScene)ResourceLoader.Load("res://scenes/snake_body_part.tscn");
 
 		_snakeBodyParts = new Array<Panel>();
+		_snakeBodyPartsIds = new List<ulong>();
 	}
 
 	private void InitElementsPositions()
@@ -83,16 +98,53 @@ public partial class main : Node2D
 
 	private bool CheckSnakeCollision()
 	{
+		var newX = _snakeHead.Position.X + _nextPosition.X;
+		var newY = _snakeHead.Position.Y + _nextPosition.Y;
 		var boardOffset = _scoreBoard.Size.Y;
 
 		// Check collision with border
-		if (_snakeHead.Position.X <= 5 || _snakeHead.Position.X >= _playground.Size.X - 5 - _snakeHead.Size.X
-			|| _snakeHead.Position.Y == boardOffset + 5 || _snakeHead.Position.Y == _scoreBoard.Size.Y + _playground.Size.Y - 5 - _snakeHead.Size.Y)
+		if (newX < 5 || newX > _playground.Size.X - 5 - _snakeHead.Size.X
+			|| newY < boardOffset + 5 || newY > _scoreBoard.Size.Y + _playground.Size.Y - 5 - _snakeHead.Size.Y)
 		{
+			GD.Print($"Ich");
 			return true;
 		}
 
 		return false;
+	}
+
+	private bool CheckSnakeEatFruit()
+	{
+		if (_fruit.Position.X != _snakeHead.Position.X || _fruit.Position.Y != _snakeHead.Position.Y)
+		{
+			return false;
+		}
+
+		var (x, y) = GetRandomFruitPosition();
+		_fruit.Position = new Vector2(x, y);
+
+		_score++;
+		_scoreText.Text = "SCORE: " + _score.ToString();
+
+		return true;
+	}
+
+	private void SnakeBodyPartMove(bool snakeAte)
+	{
+		var bodyPartInstance = (Panel)_snakeBodyPartScene.Instantiate();
+		bodyPartInstance.Position = new Vector2(_snakeHead.Position.X, _snakeHead.Position.Y);
+
+		_snakeBodyPartsIds.Add(bodyPartInstance.GetInstanceId());
+		AddChild(bodyPartInstance);
+
+		if (!snakeAte)
+		{
+			var lastBodyId = _snakeBodyPartsIds.FirstOrDefault();
+			var child = GetChildren().FirstOrDefault(ch => ch.GetInstanceId() == lastBodyId);
+
+			_snakeBodyPartsIds.Remove(lastBodyId);
+			RemoveChild(child);
+		}
 	}
 
 	private (int x, int y) GetRandomFruitPosition()
