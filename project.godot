@@ -14,6 +14,11 @@ config/name="Snake App Gui"
 config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=510
+window/size/viewport_height=560
+
 [dotnet]
 
 project/assembly_name="Snake App Gui"
